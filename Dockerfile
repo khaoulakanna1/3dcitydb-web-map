@@ -1,13 +1,6 @@
-# 3DCityDB Web Map Client Dockerfile ##########################################
-#   Official website    https://www.3dcitydb.net
-#   GitHub              https://github.com/3dcitydb/3dcitydb-web-map
-###############################################################################
-
-# Base image
 ARG BASEIMAGE_TAG='21-bookworm'
 FROM "node:${BASEIMAGE_TAG}"
 
-# Setup 3DCityDB Web Map Client ###############################################
 RUN set -ex \
   mkdir -p /var/www /var/www/data
 
