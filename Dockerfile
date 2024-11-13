@@ -13,37 +13,15 @@ RUN set -ex \
 
 WORKDIR /var/www
 
-COPY /3dwebclient/ /js/ /theme /ThirdParty /ts /docker/* ./
+COPY /3dwebclient ./3dwebclient
+COPY /js ./js
+COPY /theme ./theme
+COPY /ThirdParty ./ThirdParty
+COPY /docker/package.json  /docker/server.js /docker/html/ ./
 
 RUN set -ex && \
-  ls -lah && \
-  npm install --production && \
+  npm install --omit=dev && \
   chown -R node:node .
-
-
-
-# RUN set -x \
-#   && BUILD_PACKAGES='ca-certificates git' \
-#   && apt-get update && apt-get install -y --no-install-recommends $BUILD_PACKAGES \
-#   && git clone -b "${WEBMAPCLIENT_VERSION}" --depth 1 https://github.com/3dcitydb/3dcitydb-web-map.git /var/www \
-#   && cd /var/www \
-#   && rm -rf ./.git ./.gitignore ./LICENSE ./README.md ./build.xml \
-#      ./node_modules ./server.js $(ls -1 --ignore=ajax-loader.gif --ignore=favicon.png \
-# 		--ignore=GPS_off.png --ignore=GPS_on.png --ignore=GPS_on_ori.png --ignore=GPS_on_pos_ori.png \
-# 		 ./theme/img) \
-#   && mkdir -p /var/www/data \
-#   && apt-get purge -y --auto-remove $BUILD_PACKAGES \
-#   && rm -rf /var/lib/apt/lists/*
-
-# WORKDIR /var/www/
-# COPY package.json ./
-# COPY html/* ./
-# COPY server.js ./
-# RUN set -x \
-#   && npm install --production
-
-# RUN set -x \
-#   &&
 
 USER node
 EXPOSE 8000
