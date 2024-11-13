@@ -2,7 +2,7 @@ ARG BASEIMAGE_TAG='21-bookworm'
 FROM "node:${BASEIMAGE_TAG}"
 
 RUN set -ex \
-  mkdir -p /var/www /var/www/data
+  mkdir -p /var/www/data
 
 WORKDIR /var/www
 
