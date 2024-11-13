@@ -1,4 +1,4 @@
-ARG BASEIMAGE_TAG='21-bookworm'
+ARG BASEIMAGE_TAG='21-bookworm-slim'
 FROM "node:${BASEIMAGE_TAG}"
 
 RUN set -ex \
@@ -14,6 +14,7 @@ COPY /docker/package.json /docker/server.js /docker/html/ ./
 
 RUN set -ex && \
   npm install --omit=dev && \
+  npm cache clean --force && \
   chown -R node:node .
 
 USER node
