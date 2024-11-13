@@ -1,23 +1,23 @@
 /*
  * 3DCityDB-Web-Map
  * http://www.3dcitydb.org/
- * 
+ *
  * Copyright 2015 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
- * 
+ *
  * The 3DCityDB-Web-Map is jointly developed with the following
  * cooperation partners:
- * 
+ *
  * virtualcitySYSTEMS GmbH, Berlin <http://www.virtualcitysystems.de/>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *     
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@
     var compression = require('compression');
     var url = require('url');
     var request = require('request');
-    var serveIndex = require('serve-index');
+    var serveIndex = require('serve-index-next');
 
     var yargs = require('yargs').options({
         'port' : {
@@ -75,13 +75,13 @@
         'model/vnd.gltf+json' : ['gltf'],
         'model/vnd.gltf.binary' : ['bgltf'],
         'text/plain' : ['glsl']
-    }); 
+    });
 
     var app = express();
     app.use(compression());
     app.use(express.static(__dirname));
     app.use('/data', express.static('data'), serveIndex('data', {'icons': true, 'view': 'details'}));
-    
+
     app.use('/examples', express.static('examples'), serveIndex('examples', {'icons': true, 'view': 'details'}));
 
 
@@ -200,4 +200,3 @@
     });
 
 })();
-
