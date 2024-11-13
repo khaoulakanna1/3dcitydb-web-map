@@ -17,7 +17,7 @@ COPY /3dwebclient ./3dwebclient
 COPY /js ./js
 COPY /theme ./theme
 COPY /ThirdParty ./ThirdParty
-COPY /docker/package.json  /docker/server.js /docker/html/ ./
+COPY /docker/package.json /docker/server.js /docker/html/ ./
 
 RUN set -ex && \
   npm install --omit=dev && \
