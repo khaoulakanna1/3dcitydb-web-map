@@ -85,6 +85,8 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ env.PLATFORMS }}
         annotations: ${{ steps.meta.outputs.annotations }}
+        provenance: false
+        sbom: false
     -
       name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
