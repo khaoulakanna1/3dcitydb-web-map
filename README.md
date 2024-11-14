@@ -192,7 +192,7 @@ To test the mobile extension, simply click on one of the following two URLs:
 
 * [Demo debug-mode view](https://www.3dcitydb.org/3dcitydb-web-map/2.0.0/3dwebclient/index.html?title=3DCityDB-Web-Map-Client&shadows=false&terrainShadows=0&latitude=48.14841421296063&longitude=11.567992899981077&height=288.04731096361564&heading=328.7476197616151&pitch=-79.22129067410182&roll=359.4611498135091&layer_0=url%3Dhttps%253A%252F%252Fwww.3dcitydb.org%252F3dcitydb%252Ffileadmin%252Fmydata%252FTUM_Buildings%252FTUM_Buildings_glTF%252FTUM_Buildings_glTF_MasterJSON.json%26name%3DMUC%26layerDataType%3DCOLLADA%252FKML%252FglTF%26gltfVersion%3D0.8%26active%3Dtrue%26spreadsheetUrl%3Dhttps%253A%252F%252Ffusiontables.google.com%252Fdata%253Fdocid%253D1KE3odY92wmpwdyUs6osYhNPgRtI9W3GOQyuyHfp3%2523rows%253Aid%253D1%26cityobjectsJsonUrl%3D%26minLodPixels%3D140%26maxLodPixels%3D1.7976931348623157e%252B308%26maxSizeOfCachedTiles%3D200%26maxCountOfVisibleTiles%3D200&splashWindow=url%3Dsplash%252FSplashWindow.html%26showOnStart%3Dtrue&viewMode=debug).
 
-## Notes
+### Notes
 
 The mobile extension makes use of the Geolocation API and the DeviceOrientation API in HTML5.
 The Geolocation API only functions via HTTPS since Google Chrome 50. Therefore, make sure the client is called from an HTTPS page or your own localhost.
