@@ -1659,7 +1659,7 @@
         // Cesium already handles versions
 
         if (dataSource._gltfVersion == '0.8') {
-            heading = Cesium.Math.toRadians(headingValue - 270);
+            heading = Cesium.Math.toRadians(headingValue);
             pitch = Cesium.Math.toRadians(180);
         }
         /*
