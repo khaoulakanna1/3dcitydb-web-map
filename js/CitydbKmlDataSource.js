@@ -67,7 +67,6 @@
     var LabelStyle = Cesium.LabelStyle;
     var SceneMode = Cesium.SceneMode;
     var Uri = Cesium.Uri;
-    var zip = Cesium.zip;
     var BillboardGraphics = Cesium.BillboardGraphics;
     var CompositePositionProperty = Cesium.CompositePositionProperty;
     var CorridorGraphics = Cesium.CorridorGraphics;
@@ -208,10 +207,62 @@
         return deferred.promise;
     }
 
-    function loadXmlFromZip(reader, entry, uriResolver) {
-        return Promise.resolve(entry.getData(new zip.TextWriter()).then((text) => {
-            uriResolver.kml = parser.parseFromString(text, 'application/xml');
-        }));
+    function insertNamespaces(text) {
+        const namespaceMap = {
+            xsi: "http://www.w3.org/2001/XMLSchema-instance",
+        };
+        let firstPart, lastPart, reg, declaration;
+
+        for (const key in namespaceMap) {
+            if (namespaceMap.hasOwnProperty(key)) {
+                reg = RegExp(`[< ]${key}:`);
+                declaration = `xmlns:${key}=`;
+                if (reg.test(text) && text.indexOf(declaration) === -1) {
+                    if (!defined(firstPart)) {
+                        firstPart = text.substr(0, text.indexOf("<kml") + 4);
+                        lastPart = text.substr(firstPart.length);
+                    }
+                    firstPart += ` ${declaration}"${namespaceMap[key]}"`;
+                }
+            }
+        }
+
+        if (defined(firstPart)) {
+            text = firstPart + lastPart;
+        }
+
+        return text;
+    }
+
+    function removeDuplicateNamespaces(text) {
+        let index = text.indexOf("xmlns:");
+        const endDeclaration = text.indexOf(">", index);
+        let namespace, startIndex, endIndex;
+
+        while (index !== -1 && index < endDeclaration) {
+            namespace = text.slice(index, text.indexOf('"', index));
+            startIndex = index;
+            index = text.indexOf(namespace, index + 1);
+            if (index !== -1) {
+                endIndex = text.indexOf('"', text.indexOf('"', index) + 1);
+                text = text.slice(0, index - 1) + text.slice(endIndex + 1, text.length);
+                index = text.indexOf("xmlns:", startIndex - 1);
+            } else {
+                index = text.indexOf("xmlns:", startIndex + 1);
+            }
+        }
+
+        return text;
+    }
+
+    function loadXmlFromZip(entry, uriResolver) {
+        return Promise.resolve(entry.getData(new zip.TextWriter())).then(
+            function (text) {
+                text = insertNamespaces(text);
+                text = removeDuplicateNamespaces(text);
+                uriResolver.kml = parser.parseFromString(text, "application/xml");
+            },
+        );
     }
 
     function loadDataUriFromZip(reader, entry, uriResolver) {
@@ -1007,7 +1058,7 @@
         }
 
         if ((defined(altitudeMode) && altitudeMode !== 'clampToGround') || //
-                (defined(gxAltitudeMode) && gxAltitudeMode !== 'clampToSeaFloor')) {
+            (defined(gxAltitudeMode) && gxAltitudeMode !== 'clampToSeaFloor')) {
             console.log('KML - Unknown altitudeMode: ' + defaultValue(altitudeMode, gxAltitudeMode));
         }
 
@@ -1026,7 +1077,7 @@
         }
 
         if ((defined(altitudeMode) && altitudeMode !== 'clampToGround') || //
-                (defined(gxAltitudeMode) && gxAltitudeMode !== 'clampToSeaFloor')) {
+            (defined(gxAltitudeMode) && gxAltitudeMode !== 'clampToSeaFloor')) {
             console.log('KML - Unknown altitudeMode: ' + defaultValue(altitudeMode, gxAltitudeMode));
         }
 
@@ -1363,6 +1414,7 @@
 
         return hasGeometry;
     }
+
     function processUnsupportedGeometry(dataSource, entityCollection, geometryNode, entity, styleEntity) {
         console.log('KML - Unsupported geometry: ' + geometryNode.localName);
         return false;
@@ -1605,14 +1657,17 @@
 
         // Backward compatible....
         // Cesium already handles versions
-        /*
+
         if (dataSource._gltfVersion == '0.8') {
             heading = Cesium.Math.toRadians(headingValue - 270);
             pitch = Cesium.Math.toRadians(180);
-        } else if (dataSource._gltfVersion == '1.0') {
+        }
+        /*
+        else if (dataSource._gltfVersion == '1.0') {
             heading = Cesium.Math.toRadians(headingValue - 90);
         }
         */
+
 
         var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
         var orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
@@ -1650,7 +1705,7 @@
         MultiTrack: processMultiTrack,
         MultiGeometry: processMultiGeometry,
         Model: processModel
-                //    Model : processUnsupportedGeometry
+        //    Model : processUnsupportedGeometry
     };
 
     function processDocument(dataSource, parent, node, entityCollection, styleCollection, sourceUri, uriResolver, promises, context) {
@@ -1666,7 +1721,7 @@
             for (var q = 0; q < length; q++) {
                 var child = childNodes[q];
                 if (child.localName === featureName &&
-                        ((namespaces.kml.indexOf(child.namespaceURI) !== -1) || (namespaces.gx.indexOf(child.namespaceURI) !== -1))) {
+                    ((namespaces.kml.indexOf(child.namespaceURI) !== -1) || (namespaces.gx.indexOf(child.namespaceURI) !== -1))) {
                     processFeatureNode(dataSource, parent, child, entityCollection, styleCollection, sourceUri, uriResolver, promises, context);
                 }
             }
@@ -1875,6 +1930,7 @@
     var scratchCartographic = new Cartographic();
     var scratchCartesian2 = new Cartesian2();
     var scratchCartesian3 = new Cartesian3();
+
     function processNetworkLinkQueryString(camera, canvas, queryString, viewBoundScale, bbox) {
         function fixLatitude(value) {
             if (value < -CesiumMath.PI_OVER_TWO) {
@@ -1919,10 +1975,10 @@
                 var newHalfWidth = bbox.width * viewBoundScale * 0.5;
                 var newHalfHeight = bbox.height * viewBoundScale * 0.5;
                 bbox = new Rectangle(fixLongitude(centerCartographic.longitude - newHalfWidth),
-                        fixLatitude(centerCartographic.latitude - newHalfHeight),
-                        fixLongitude(centerCartographic.longitude + newHalfWidth),
-                        fixLatitude(centerCartographic.latitude + newHalfHeight)
-                        );
+                    fixLatitude(centerCartographic.latitude - newHalfHeight),
+                    fixLongitude(centerCartographic.longitude + newHalfWidth),
+                    fixLatitude(centerCartographic.latitude + newHalfHeight)
+                );
             }
 
             queryString = queryString.replace('[bboxWest]', CesiumMath.toDegrees(bbox.west).toString());
@@ -2187,84 +2243,83 @@
 
         var styleCollection = new EntityCollection(dataSource);
         return Promise.all(processStyles(dataSource, kml, styleCollection, sourceUri, false, uriResolver, context)).then(() => {
-                var element = kml.documentElement;
-                if (element.localName === 'kml') {
-                    var childNodes = element.childNodes;
-                    for (var i = 0; i < childNodes.length; i++) {
-                        var tmp = childNodes[i];
-                        if (defined(featureTypes[tmp.localName])) {
-                            element = tmp;
-                            break;
-                        }
+            var element = kml.documentElement;
+            if (element.localName === 'kml') {
+                var childNodes = element.childNodes;
+                for (var i = 0; i < childNodes.length; i++) {
+                    var tmp = childNodes[i];
+                    if (defined(featureTypes[tmp.localName])) {
+                        element = tmp;
+                        break;
                     }
                 }
-                entityCollection.suspendEvents();
-                processFeatureNode(dataSource, element, undefined, entityCollection, styleCollection, sourceUri, uriResolver, promises, context);
-                entityCollection.resumeEvents();
+            }
+            entityCollection.suspendEvents();
+            processFeatureNode(dataSource, element, undefined, entityCollection, styleCollection, sourceUri, uriResolver, promises, context);
+            entityCollection.resumeEvents();
 
-                return Promise.all(promises).then(() => {
-                    return kml.documentElement;
-                });
+            return Promise.all(promises).then(() => {
+                return kml.documentElement;
             });
+        });
     }
 
-    function loadKmz(dataSource, entityCollection, blob, sourceUri) {
-        var deferred = Cesium.defer();
-        zip.createReader(new zip.BlobReader(blob), function (reader) {
-            reader.getEntries(function (entries) {
-                var promises = [];
-                var uriResolver = {};
-                var docEntry;
-                var docDefer;
-                for (var i = 0; i < entries.length; i++) {
-                    var entry = entries[i];
-                    if (!entry.directory) {
-                        var innerDefer = Cesium.defer();
-                        promises.push(innerDefer.promise);
-                        if (/\.kml$/i.test(entry.filename)) {
-                            // We use the first KML document we come across
-                            //  https://developers.google.com/kml/documentation/kmzarchives
-                            // Unless we come across a .kml file at the root of the archive because GE does this
-                            if (!defined(docEntry) || !/\//i.test(entry.filename)) {
-                                if (defined(docEntry)) {
-                                    // We found one at the root so load the initial kml as a data uri
-                                    loadDataUriFromZip(reader, docEntry, uriResolver, docDefer);
-                                }
-                                docEntry = entry;
-                                docDefer = innerDefer;
-                            } else {
-                                // Wasn't the first kml and wasn't at the root
-                                loadDataUriFromZip(reader, entry, uriResolver, innerDefer);
-                            }
-                        } else {
-                            loadDataUriFromZip(reader, entry, uriResolver, innerDefer);
-                        }
-                    }
-                }
-
-                // Now load the root KML document
-                if (defined(docEntry)) {
-                    loadXmlFromZip(reader, docEntry, uriResolver, docDefer);
-                }
-                when.all(promises).then(function () {
-                    reader.close();
-                    if (!defined(uriResolver.kml)) {
-                        deferred.reject(new RuntimeError('KMZ file does not contain a KML document.'));
-                        return;
-                    }
-                    uriResolver.keys = Object.keys(uriResolver);
-                    return loadKml(dataSource, entityCollection, uriResolver.kml, sourceUri, uriResolver);
-                }).then(() => {
-                    deferred.resolve
-                }, () => {
-                    deferred.reject
-                });
-            });
-        }, function (e) {
-            deferred.reject(e);
+    function loadKmz(dataSource, entityCollection, blob, sourceResource) {
+        const zWorkerUrl = Cesium.buildModuleUrl("./ThirdParty/Workers/z-worker-pako.js");
+        zip.configure({
+            workerScripts: {
+                deflate: [zWorkerUrl, "./pako_deflate.min.js"],
+                inflate: [zWorkerUrl, "./pako_inflate.min.js"],
+            },
         });
 
-        return deferred.promise;
+        const reader = new zip.ZipReader(new zip.BlobReader(blob));
+        return Promise.resolve(reader.getEntries()).then(function (entries) {
+            const promises = [];
+            const uriResolver = {};
+            let docEntry;
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                if (!entry.directory) {
+                    if (/\.kml$/i.test(entry.filename)) {
+                        // We use the first KML document we come across
+                        //  https://developers.google.com/kml/documentation/kmzarchives
+                        // Unless we come across a .kml file at the root of the archive because GE does this
+                        if (!defined(docEntry) || !/\//i.test(entry.filename)) {
+                            if (defined(docEntry)) {
+                                // We found one at the root so load the initial kml as a data uri
+                                promises.push(loadDataUriFromZip(docEntry, uriResolver));
+                            }
+                            docEntry = entry;
+                        } else {
+                            // Wasn't the first kml and wasn't at the root
+                            promises.push(loadDataUriFromZip(entry, uriResolver));
+                        }
+                    } else {
+                        promises.push(loadDataUriFromZip(entry, uriResolver));
+                    }
+                }
+            }
+
+            // Now load the root KML document
+            if (defined(docEntry)) {
+                promises.push(loadXmlFromZip(docEntry, uriResolver));
+            }
+            return Promise.all(promises).then(function () {
+                reader.close();
+                if (!defined(uriResolver.kml)) {
+                    throw new RuntimeError("KMZ file does not contain a KML document.");
+                }
+                uriResolver.keys = Object.keys(uriResolver);
+                return loadKml(
+                    dataSource,
+                    entityCollection,
+                    uriResolver.kml,
+                    sourceResource,
+                    uriResolver
+                );
+            });
+        });
     }
 
     function load(dataSource, entityCollection, data, options) {
@@ -2627,11 +2682,11 @@
             DataSource.setLoading(that, false);
             return that;
         }).catch(function (error) {
-                DataSource.setLoading(that, false);
-                that._error.raiseEvent(that, error);
-                console.log(error);
-                return Promise.reject(error);
-            });
+            DataSource.setLoading(that, false);
+            that._error.raiseEvent(that, error);
+            console.log(error);
+            return Promise.reject(error);
+        });
     }
 
     function mergeAvailabilityWithParent(child) {
@@ -2786,6 +2841,7 @@
         var that = this;
 
         entitiesToIgnore.removeAll();
+
         function recurseIgnoreEntities(entity) {
             var children = entity._children;
             var count = children.length;
@@ -2800,9 +2856,9 @@
         var lastCameraView = this._lastCameraView;
         var camera = this._camera;
         if (defined(camera) &&
-                !(camera.positionWC.equalsEpsilon(lastCameraView.position, CesiumMath.EPSILON7) &&
-                        camera.directionWC.equalsEpsilon(lastCameraView.direction, CesiumMath.EPSILON7) &&
-                        camera.upWC.equalsEpsilon(lastCameraView.up, CesiumMath.EPSILON7))) {
+            !(camera.positionWC.equalsEpsilon(lastCameraView.position, CesiumMath.EPSILON7) &&
+                camera.directionWC.equalsEpsilon(lastCameraView.direction, CesiumMath.EPSILON7) &&
+                camera.upWC.equalsEpsilon(lastCameraView.up, CesiumMath.EPSILON7))) {
 
             // Camera has changed so update the last view
             lastCameraView.position = Cartesian3.clone(camera.positionWC);
@@ -2849,11 +2905,11 @@
                     var href = joinUrls(networkLink.href, makeQueryString(networkLink.cookie, networkLink.queryString), false);
                     href = processNetworkLinkQueryString(that._camera, that._canvas, href, networkLink.viewBoundScale, lastCameraView.bbox);
                     load(that, newEntityCollection, href, {context: entity.id})
-                            .then(getNetworkLinkUpdateCallback(that, networkLink, newEntityCollection, newNetworkLinks, href), function (error) {
-                                var msg = 'NetworkLink ' + networkLink.href + ' refresh failed: ' + error;
-                                console.log(msg);
-                                that._error.raiseEvent(that, msg);
-                            });
+                        .then(getNetworkLinkUpdateCallback(that, networkLink, newEntityCollection, newNetworkLinks, href), function (error) {
+                            var msg = 'NetworkLink ' + networkLink.href + ' refresh failed: ' + error;
+                            console.log(msg);
+                            that._error.raiseEvent(that, msg);
+                        });
                     changed = true;
                 }
             }
