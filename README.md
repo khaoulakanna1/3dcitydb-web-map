@@ -202,6 +202,8 @@ Additional important notes:
 * Test the client on devices equipped with GPS.
 * If the Geolocation API asks for permission to retrieve your current location, select "Allow".
 
+## Docker
+
 ## More information
 
 The 3DCityDB-Web-Map-Client is a part of the [3DCityDB Software Suite](https://www.3dcitydb.org) for managing and working with large semantic 3D city models in CityGML. However, the web client can also be used as a separate stand-alone component.
