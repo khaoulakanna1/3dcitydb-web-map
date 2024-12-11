@@ -6,6 +6,12 @@
 
 ##### UPDATES
 
+* Update demo links to newer version of the 3DCityDB Web Map Client,
+  see [`2fc7079`](https://github.com/3dcitydb/3dcitydb-web-map/commit/2fc70790a972da9c45c10e22b63adabbc5ac849e).
+* The library `zip.js` is now included separately from Cesium.
+  It has been updated to version `2.7.53`,
+  see [`0285009`](https://github.com/3dcitydb/3dcitydb-web-map/commit/0285009777e6aad8b19e2b8b8ed30b5b5ce8164b).
+
 ##### CHANGES
 
 * Deactivated layers can now be changed and reactivated later,
@@ -13,6 +19,8 @@
 
 ##### FIXES
 
+* Fixed loading functions for KMZ,
+  see [`dcf69ef`](https://github.com/3dcitydb/3dcitydb-web-map/commit/dcf69efa033a6df965b74a2472e151fdfedb6982).
 * Fixed async loading of the globe and layers on start,
   see [`508b51f`](https://github.com/3dcitydb/3dcitydb-web-map/commit/508b51f7074643dd35d5c3815abb7397268c1bf7).
 
@@ -76,7 +84,8 @@ This is a major release.
   see [`aa05d5b`](https://github.com/3dcitydb/3dcitydb-web-map/commit/aa05d5bc1f107395fdfa4732912bfe24d68b929d).
 * Highlighting will be cleared when a layer has been updated or reactivated,
   see [`8475281`](https://github.com/3dcitydb/3dcitydb-web-map/commit/84752817e9c355111b51a069048768b20bac8e12).
-* The buttons for accessing geolocation and orientation on mobile have been modernized with completely new icons and implementations.
+* The buttons for accessing geolocation and orientation on mobile have been modernized with completely new icons and
+  implementations.
 * The tile inspector is now hidden by default to improve visual clarity,
   see [`d4109eb`](https://github.com/3dcitydb/3dcitydb-web-map/commit/d4109eb7211c4c642617521cff36593d566d0836).
 * Cesium already handles different versions of glTF,
@@ -311,7 +320,7 @@ This is a major release.
       *Example*:
 
       | gmlid  | attribute1 | attribute2 | attribute3 | attribute4 |
-                        | ------------- | ------------- | ------------- | ------------- | ------------- |
+                              | ------------- | ------------- | ------------- | ------------- | ------------- |
       | gmlid1  | value1  | value2  | value3  | value4  |
       | gmlid2  | value1  | value2  | value3  | value4  |
 
@@ -323,7 +332,7 @@ This is a major release.
       *Example*:
 
       | gmlid  | attribute | value |
-                        | ------------- | ------------- | ------------- |
+                              | ------------- | ------------- | ------------- |
       | gmlid1  | attribute1  | value1  |
       | gmlid1  | attribute2  | value2  |
       | gmlid1  | attribute3  | value3  |
@@ -384,7 +393,7 @@ This is a major release.
   where:
 
   | Parameter        | Description           | Allowed values  | Default Value |
-        | ------------- |-------------| -----| ----|
+          | ------------- |-------------| -----| ----|
   | `url`      | A valid path to the HTML file | An absolute path if the HTML file is located in another domain or a relative path if the HTML file is located in the same project folder as the web client | `splash/SplashWindow.html` |
   | `showOnStart`     | A boolean that determines whether the splash window should be shown upon start or not      |   `true` or `false` | `true` |
 
